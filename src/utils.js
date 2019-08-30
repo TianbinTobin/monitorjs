@@ -10,6 +10,6 @@ function randomString(length = 10) {
   return pwd + new Date().getTime();
 }
 
-module.exports = {
+export default {
   randomString: randomString,
 };
