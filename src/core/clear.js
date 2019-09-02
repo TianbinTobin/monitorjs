@@ -7,6 +7,7 @@ export default function clear(type = 0) {
   if (window.performance && window.performance.clearResourceTimings) {
     window.performance.clearResourceTimings();
   }
+  console.log('clear');
   store.performance = {};
   store.errorList = [];
   store.preUrl = '';

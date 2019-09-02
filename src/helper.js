@@ -20,6 +20,10 @@ export function clearPerformance(type) {
       clear(1);
     }
   }
+  if (extra.reportTimeOutHandler) {
+    console.log('停止上报', extra.reportTimeOutHandler);
+    clearTimeout(extra.reportTimeOutHandler);
+  }
 }
 
 //比较onload与ajax时间长度
@@ -82,7 +86,6 @@ export function getFetchTime(type) {
 // ajax get time
 export function getAjaxTime(type) {
   store.ajaxLoadNum += 1;
-  if (extra.reportTimeOutHandler) clearTimeout(extra.reportTimeOutHandler);
   console.log('ajax加载进度', store.ajaxLength, store.ajaxLoadNum);
   if (store.ajaxLoadNum === store.ajaxLength) {
     if (type == 'load') {

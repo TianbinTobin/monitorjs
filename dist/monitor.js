@@ -174,6 +174,7 @@
     if (window.performance && window.performance.clearResourceTimings) {
       window.performance.clearResourceTimings();
     }
+    console.log('clear');
     store.performance = {};
     store.errorList = [];
     store.preUrl = '';
@@ -360,19 +361,36 @@
       }
       result = Object.assign(result, options.add);
       reportFn && reportFn(result);
+      if (reportFn) {
+        reportFn(result)
+          .then(res => {
+            console.log('上报成功', res);
+          })
+          .catch(err => {
+            console.log('上报失败', err);
+          });
+      }
       if (!reportFn && window.fetch) {
         fetch(options.domain, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           type: 'report-data',
           body: JSON.stringify(result),
-        });
+        })
+          .then(res => {
+            console.log('上报成功', res);
+          })
+          .catch(err => {
+            console.log('上报失败', err);
+          });
       }
+      extra.reportTimeOutHandler = undefined;
       // 清空无关数据
       Promise.resolve().then(() => {
         clear();
       });
     }, options.outTime);
+    console.log('准备上报', extra.reportTimeOutHandler);
   };
 
   function clearPerformance(type) {
@@ -389,6 +407,10 @@
       } else if (store.haveAjax && !store.haveFetch && store.ajaxLength == 0) {
         clear(1);
       }
+    }
+    if (extra.reportTimeOutHandler) {
+      console.log('停止上报', extra.reportTimeOutHandler);
+      clearTimeout(extra.reportTimeOutHandler);
     }
   }
 
@@ -452,7 +474,6 @@
   // ajax get time
   function getAjaxTime(type) {
     store.ajaxLoadNum += 1;
-    if (extra.reportTimeOutHandler) clearTimeout(extra.reportTimeOutHandler);
     console.log('ajax加载进度', store.ajaxLength, store.ajaxLoadNum);
     if (store.ajaxLoadNum === store.ajaxLength) {
       if (type == 'load') {
@@ -537,7 +558,7 @@
           return res;
         })
         .catch(err => {
-          if (result.type === 'report-data') return;
+          if (result.type === 'report-data') throw err;
           getFetchTime('error');
           //error
           let errorInfo = Object.assign({}, error);
@@ -551,7 +572,7 @@
             status: 0,
           };
           store.errorList.push(errorInfo);
-          return err;
+          throw err;
         });
     };
   };
@@ -752,9 +773,8 @@
           type: 'xmlhttprequest',
         };
         this.args = result;
-
-        clearPerformance();
         console.log('open url', result.url);
+        clearPerformance();
         store.ajaxMsg[result.url] = result;
         store.ajaxLength = store.ajaxLength + 1;
         store.haveAjax = true;

@@ -57,7 +57,7 @@ const fetchHandler = function() {
         return res;
       })
       .catch(err => {
-        if (result.type === 'report-data') return;
+        if (result.type === 'report-data') throw err;
         getFetchTime('error');
         //error
         let errorInfo = Object.assign({}, error);
@@ -71,7 +71,7 @@ const fetchHandler = function() {
           status: 0,
         };
         store.errorList.push(errorInfo);
-        return err;
+        throw err;
       });
   };
 };

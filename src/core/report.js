@@ -177,19 +177,36 @@ const report = function(type = 1, opt = {}) {
     }
     result = Object.assign(result, options.add);
     reportFn && reportFn(result);
+    if (reportFn) {
+      reportFn(result)
+        .then(res => {
+          console.log('上报成功', res);
+        })
+        .catch(err => {
+          console.log('上报失败', err);
+        });
+    }
     if (!reportFn && window.fetch) {
       fetch(options.domain, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         type: 'report-data',
         body: JSON.stringify(result),
-      });
+      })
+        .then(res => {
+          console.log('上报成功', res);
+        })
+        .catch(err => {
+          console.log('上报失败', err);
+        });
     }
+    extra.reportTimeOutHandler = undefined;
     // 清空无关数据
     Promise.resolve().then(() => {
       clear();
     });
   }, options.outTime);
+  console.log('准备上报', extra.reportTimeOutHandler);
 };
 
 export default report;

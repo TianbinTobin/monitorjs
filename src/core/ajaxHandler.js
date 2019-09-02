@@ -92,9 +92,8 @@ function ajaxHandler() {
         type: 'xmlhttprequest',
       };
       this.args = result;
-
-      clearPerformance();
       console.log('open url', result.url);
+      clearPerformance();
       store.ajaxMsg[result.url] = result;
       store.ajaxLength = store.ajaxLength + 1;
       store.haveAjax = true;
